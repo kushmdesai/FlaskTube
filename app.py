@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-import requests
-import os
+import requests, os, isodate
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 
@@ -9,6 +8,25 @@ load_dotenv()
 app = Flask(__name__)
 API_KEY = os.getenv("YOUTUBE_API_KEY")
 YOUTUBE_API_URL = "https://www.googleapis.com/youtube/v3/search"
+youtube = build("youtube", "v3", developerKey=API_KEY)
+
+def get_videos_with_duration(video_ids):
+    response = youtube.videos().list(
+        part="snippet.contentDetails",
+        id=video_ids
+    ).execute()
+
+    for video in response['items']:
+        video["duration"] = isodate.parse_duration(video['contentDetails']['duration'])
+    return response['items']
+
+def format_duration(iso_duration):
+    if not iso_duration:
+        return "0:00"
+    td = isodate.parse_duration(iso_duration)
+    total_seconds = int(td.total_seconds())
+    minutes, seconds = divmod(total_seconds, 60)
+    return f"{minutes}:{seconds:02d}"
 
 @app.route("/", methods = ["GET"])
 def home():
@@ -68,6 +86,34 @@ def related_videos(video_id):
         })
 
     return jsonify(videos)
+
+@app.route("/video/<video_id>")
+def video_details(video_id):
+    try:
+        url = f"http://www.googleapis.com/youtube/v3/videos"
+        params = {
+            "part": "snippet,statistics",
+            "id": video_id,
+            "key": API_KEY
+        }
+        r = requests.get(url, params=params).json()
+
+        if "items" not in r or not len(r["items"]) == 0:
+            return {"error": "No video found"}, 404
+        
+        video = r["items"][0]
+        stats = video.get("statistics", {})
+
+        return jsonify({
+            "title" : video["title"],
+            "description" : video.get("description", ""),
+            "channelTitls": video["channelTitle"],
+            "publishedAt": video["publishedAt"],
+            "viewCounts": stats.get("viewCount", "0"),
+            "likeCount": stats.get("likeCount", "0")
+        })
+    except Exception as e:
+        return jsonify({"error":str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -13,7 +13,7 @@
     <!-- Iframe API -->
      <script src="https://www.youtube.com/iframe_api"></script>
 </head>
-<body class="bg-gray-100 font-inter min-h-screen flex flex-col">
+<body class="bg-gray-100 dark:bg-gray-900 font-inter min-h-screen flex flex-col text-gray-900 dark:text-gray-100">
 
 <div x-data="modalState()" class="flex-grow">
 
@@ -22,22 +22,28 @@
         <h1 class="text-4xl font-bold mb-8 text-center text-red-600 rounded-lg p-2">
             <span class="bg-red-600 text-white px-4 py-2 rounded-full shadow-lg">▶</span> FlaskTube
         </h1>
+        <!-- <button
+            @click="darkMode = !darkMode; document.body.classList.toggle('dark', darkMode)"
+            class="ml-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-lg shadow hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+        >
+        Swap Modes
+        </button> -->
 
         <!-- Search Form -->
         <div class="relative w-full max-w-lg mx-auto">
             <form method="get" class="flex" action="/">
                 <input type="text" name="q" value="{{ query }}" placeholder="Search videos..." id="search-input"
-                       class="border rounded p-2 flex-grow">
+                    class="border rounded p-2 flex-grow bg-white dark:bg-gray-700 dark:text-white">
                 <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Search</button>
             </form>
-            <ul id="suggestions" class="absolute left-0 right-0 bg-white border border-gray-300 rounded-lg mt-1 shadow-lg hidden z-50"></ul>
+            <ul id="suggestions" class="absolute left-0 right-0 bg-white dark:bg-gray-700 border border-gray-300 dark:border rounded-lg mt-1 shadow-lg hidden z-50"></ul>
         </div>
 
         <!-- Video Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-6">
             {% for video in videos %}
                 {% if video.id['kind'] == 'youtube#video' %}
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300 cursor-pointer"
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transform hover:scale-105 transition-all duration-300 cursor-pointer"
                      @click="openModal(
                          '{{ video.id['videoId'] }}',
                          `{{ video.snippet.title|default('')|e |replace('\\n', '') |replace('`', '\\`') }}`,
@@ -48,9 +54,9 @@
                          class="w-full h-48 object-cover rounded-t-xl" loading="lazy"
                          onerror="this.onerror=null;this.src='https://placehold.co/640x360/e0e0e0/505050?text=No+Thumbnail';">
                     <div class="p-4">
-                        <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2" title="{{ video.snippet.title }}">{{ video.snippet.title }}</h3>
-                        <p class="text-gray-600 text-sm line-clamp-3">{{ video.snippet.description }}</p>
-                        <p class="text-gray-500 text-xs mt-2">Channel: {{ video.snippet.channelTitle }}</p>
+                        <h3 class="font-semibold text-lg mb-2 text-gray-400 line-clamp-2" title="{{ video.snippet.title }}">{{ video.snippet.title }}</h3>
+                        <p class="text-gray-400 text-sm line-clamp-3">{{ video.snippet.description }}</p>
+                        <p class="text-gray-300 text-xs mt-2">Channel: {{ video.snippet.channelTitle }}</p>
                     </div>
                 </div>
                 {% endif %}
@@ -60,21 +66,20 @@
 
     <!-- Video Playback Modal -->
     <div x-show="modalOpen"
-         class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
-         @click.self="modalOpen = false; currentVideo='';"
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 scale-90"
-         x-transition:enter-end="opacity-100 scale-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100 scale-100"
-         x-transition:leave-end="opacity-0 scale-90"
-         style="display: none;">
+        class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4"
+        @click.self="modalOpen = false; currentVideo='';"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 scale-90"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-90"
+        style="display: none;">
 
-        <div class="bg-white rounded-xl shadow-2xl overflow-hidden w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 max-h-full flex flex-col transform transition-all duration-300"
-             @click.stop>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 max-h-full flex flex-col transfrom transition-all duration-200" @click.stop>
             <!-- Header -->
             <div class="flex justify-between items-center p-4 border-b border-gray-200">
-                <h2 class="text-2xl font-bold text-gray-900" x-text="currentTitle"></h2>
+                <h2 class="text-2xl font-bold text-gray-300" x-text="currentTitle"></h2>
                 <button @click="modalOpen=false; currentVideo='';" 
                         class="text-gray-600 hover:text-gray-900 text-3xl font-bold p-1 rounded-full hover:bg-gray-200 transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400">
                     &times;
@@ -94,13 +99,21 @@
                 </div>
 
                 <!-- Video Description -->
-                <p class="text-gray-700 mt-4 text-base" x-text="currentDescription"></p>
-                <p class="text-gray-600 mt-2 text-sm font-medium">Channel: <span x-text="currentChannel"></span></p>
+                <p class="text-gray-300 mt-4 text-base" x-text="currentDescription"></p>
+                <p class="text-gray-200 mt-2 text-sm font-medium">Channel: <span x-text="currentChannel"></span></p>
+
+                <!-- Video Stats -->
+                <p class="text-gray-200 mt-1 text-sm">
+                    <strong>Views: </strong> <span id="viewCount">Loading...</span>
+                </p>
+                <p class="text-gray-200 mt-1 text-sm">
+                    <strong>Likes: </strong> <span id="likeCount">Loading...</span>
+                </p>
 
                 <!-- Related Videos -->
-                <div class="mt-6">
+                <div class="mt-6 bg-gray-800">
                     <h3 class="font-bold text-lg mb-2">Related Videos</h3>
-                    <div id="related-videos" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                    <div id="related-videos" class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-800"></div>
                 </div>
             </div>
         </div>
@@ -164,11 +177,11 @@ function fetchRelatedVideos(videoId, openModalFn) {
 
             videos.forEach(video => {
                 const div = document.createElement("div");
-                div.className = "bg-white rounded-lg shadow p-2 cursor-pointer hover:scale-105 transform transition duration-200";
+                div.className = "bg-gray-600 rounded-lg shadow p-2 cursor-pointer hover:scale-105 transform transition duration-200";
                 div.innerHTML = `
                     <img src="${video.thumbnail}" class="w-full h-32 object-cover rounded" />
                     <h4 class="text-sm font-semibold mt-2 line-clamp-2">${video.title}</h4>
-                    <p class="text-xs text-gray-500 mt-1">${video.channel}</p>
+                    <p class="text-xs text-gray-300 mt-1">${video.channel}</p>
                 `;
                 div.addEventListener("click", () => {
                     openModalFn(video.videoId, video.title, "", video.channel);
@@ -187,6 +200,7 @@ function fetchRelatedVideos(videoId, openModalFn) {
 document.addEventListener("alpine:init", () => {
     Alpine.data('modalState', () => ({
         modalOpen: false,
+        darkMode: false,
         currentVideo: '',
         currentTitle: '',
         currentDescription: '',
@@ -198,6 +212,27 @@ document.addEventListener("alpine:init", () => {
             this.currentChannel = channel;
             this.modalOpen = true;
             fetchRelatedVideos(videoId, this.openModal.bind(this));
+
+            fetch(`/video/${videoId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById("viewCount").innerText = "N/A";
+                    document.getElementById("likeCount").innerText = "N/A";
+                    return;
+                }
+
+                let likes = data.likeCount ? parseInt(data.likeCount, 10) : 0;
+                let views = data.viewCount ? parseInt(data.viewCount, 10) : 0;
+
+                document.getElementById("viewCount").innerText = views.toLocaleString();
+                document.getElementById("likeCount").innerText = data.likeCount ? likes.toLocaleString() : "hidden";
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById("viewCount").innerText = "Error";
+                document.getElementById("likeCount").innerText = "Error";
+            });
         }
     }));
 });
